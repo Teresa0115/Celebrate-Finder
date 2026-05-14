@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>找慶祝 · 台北精選甜點地圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose: #C2185B;
+  --rose-light: #FCE4EC;
+  --rose-mid: #E91E8C;
+  --cream: #FFF8F3;
+  --warm: #F5E6D0;
+  --brown: #3D2B1F;
+  --brown-mid: #8B5E3C;
+  --gray: #6B7280;
+  --white: #FFFFFF;
+  --border: rgba(194,24,91,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--brown); min-height: 100vh; }
+
+/* Header */
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--rose); letter-spacing: .02em; }
+.logo span { font-style: italic; color: var(--brown-mid); font-size: 1rem; margin-left: .5rem; font-family: 'DM Sans', sans-serif; font-weight: 300; }
+.header-count { font-size: .8rem; color: var(--gray); }
+
+/* Hero */
+.hero { background: var(--white); padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
+.hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--brown); line-height: 1.2; margin-bottom: .75rem; }
+.hero-title em { color: var(--rose); font-style: italic; }
+.hero-sub { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--brown-mid); font-weight: 300; margin-bottom: 2rem; letter-spacing: .04em; }
+
+/* Search */
+.search-wrap { max-width: 520px; margin: 0 auto 1.5rem; position: relative; }
+.search-input { width: 100%; padding: .875rem 1.25rem .875rem 3rem; border: 1.5px solid var(--border); border-radius: 50px; font-size: .95rem; font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--brown); outline: none; transition: border-color .2s; }
+.search-input:focus { border-color: var(--rose); background: var(--white); }
+.search-icon { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--rose); font-size: 1.1rem; pointer-events: none; }
+
+/* Filters */
+.filters { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; padding-bottom: .25rem; }
+.filter-btn { padding: .4rem 1rem; border-radius: 50px; border: 1px solid var(--border); background: var(--white); color: var(--brown-mid); font-size: .8rem; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+.filter-btn:hover, .filter-btn.active { background: var(--rose); color: var(--white); border-color: var(--rose); }
+
+/* Grid */
+.main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+.results-info { font-size: .85rem; color: var(--gray); margin-bottom: 1.5rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
+/* Card */
+.card { background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); transition: transform .25s, box-shadow .25s; cursor: pointer; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(194,24,91,.12); }
+.card-img { height: 200px; overflow: hidden; position: relative; background: var(--warm); }
+.card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.card:hover .card-img img { transform: scale(1.05); }
+.card-badge { position: absolute; top: 10px; left: 10px; font-size: .7rem; padding: 3px 9px; border-radius: 20px; font-weight: 500; letter-spacing: .03em; }
+.badge-custom { background: var(--rose); color: var(--white); }
+.badge-featured { background: var(--brown); color: var(--white); }
+.badge-new { background: #7B1FA2; color: var(--white); }
+.card-body { padding: 1.25rem; }
+.card-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--brown); margin-bottom: .3rem; line-height: 1.3; }
+.card-style { font-size: .78rem; color: var(--rose); margin-bottom: .6rem; font-weight: 500; letter-spacing: .02em; }
+.card-desc { font-size: .82rem; color: var(--gray); line-height: 1.65; margin-bottom: .875rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.card-meta { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: .75rem; }
+.card-price { font-size: .85rem; font-weight: 500; color: var(--rose); }
+.card-hours { font-size: .75rem; color: var(--gray); }
+.card-footer { padding: 0 1.25rem 1.25rem; display: flex; gap: .5rem; }
+.btn-ig { flex: 1; padding: .55rem; border-radius: 8px; border: 1px solid var(--border); background: var(--cream); color: var(--brown-mid); font-size: .78rem; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: .35rem; transition: all .2s; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.btn-ig:hover { background: var(--rose-light); border-color: var(--rose); color: var(--rose); }
+.btn-tel { flex: 1; padding: .55rem; border-radius: 8px; border: 1px solid var(--rose); background: var(--rose); color: var(--white); font-size: .78rem; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: .35rem; transition: all .2s; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.btn-tel:hover { background: #a31650; }
+
+/* Empty state */
+.empty { text-align: center; padding: 4rem 2rem; color: var(--gray); }
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty p { font-family: 'Noto Serif TC', serif; font-size: 1rem; }
+
+/* Footer */
+footer { background: var(--brown); color: rgba(255,255,255,.6); text-align: center; padding: 2rem; font-size: .8rem; margin-top: 4rem; }
+footer strong { color: var(--white); }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(61,43,31,.6); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 20px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal-img { height: 240px; overflow: hidden; border-radius: 20px 20px 0 0; }
+.modal-img img { width: 100%; height: 100%; object-fit: cover; }
+.modal-body { padding: 1.75rem; }
+.modal-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--brown); margin-bottom: .25rem; }
+.modal-style { font-size: .85rem; color: var(--rose); font-weight: 500; margin-bottom: 1rem; }
+.modal-desc { font-size: .9rem; color: var(--gray); line-height: 1.75; margin-bottom: 1.25rem; font-family: 'Noto Serif TC', serif; font-weight: 300; }
+.modal-info { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
+.modal-row { display: flex; gap: .75rem; font-size: .85rem; }
+.modal-key { color: var(--brown-mid); font-weight: 500; min-width: 70px; }
+.modal-val { color: var(--brown); flex: 1; }
+.modal-actions { display: flex; gap: .75rem; }
+.modal-close { position: absolute; top: 1rem; right: 1rem; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.9); border: none; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; color: var(--brown); }
+.modal-wrap { position: relative; }
+
+@media(max-width: 600px) {
+  .header { padding: 1rem; }
+  .hero { padding: 2rem 1rem 1.5rem; }
+  .main { padding: 1.5rem 1rem; }
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">找慶祝 <span>台北精選甜點</span></div>
+  <div class="header-count" id="header-count">11 家店</div>
+</div>
+
+<div class="hero">
+  <h1 class="hero-title">台北最好吃的蛋糕<br><em>都在這裡了</em></h1>
+  <p class="hero-sub">精選 11 家職人甜點工作室 · 法式 · 日式 · 韓式 · 訂製</p>
+  <div class="search-wrap">
+    <span class="search-icon">&#9825;</span>
+    <input class="search-input" type="text" id="search" placeholder="搜尋店名、風格、口味…" oninput="renderCards()">
+  </div>
+  <div class="filters" id="filters"></div>
+</div>
+
+<div class="main">
+  <div class="results-info" id="results-info"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    <div class="empty-icon">&#9825;</div>
+    <p>沒有找到符合的甜點店</p>
+  </div>
+</div>
+
+<footer>
+  <strong>找慶祝</strong> · 台北精選甜點地圖 · 資料僅供參考，請向店家確認最新資訊
+</footer>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal modal-wrap">
+    <button class="modal-close" onclick="closeModalBtn()">&#10005;</button>
+    <div class="modal-img"><img id="modal-img" src="" alt=""></div>
+    <div class="modal-body">
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-style" id="modal-style"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-info" id="modal-info"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const shops = [
+  {
+    name: "法國廚師的甜點 Nosif",
+    address: "台北市松山區",
+    phone: "歡迎私訊詢問",
+    style: "法式手作, 生日蛋糕, 客製化, 精緻甜點",
+    rating: 5.0,
+    img: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600",
+    hours: "週四至週六 15:00–19:00｜週日 14:30–17:00",
+    desc: "法國廚師的甜點 Nosif 由法國甜點主廚與 Teresa 共同經營，專注製作法式生日蛋糕與手作甜點。每一款蛋糕皆以少量製作為原則，重視食材、口感層次與工藝細節，適合生日慶祝、節日聚會與重要時刻分享。建議提前預訂，以便安排製作。",
+    ig: "https://www.instagram.com/chihtingteresa/",
+    custom: true,
+    price: "生日蛋糕 NT$950 起",
+    days: 7,
+    badge: "featured"
+  },
+  {
+    name: "MIELE Patisserie",
+    address: "台北市大安區和平東路一段129號",
+    phone: "02-2700-1234",
+    style: "法式, 訂製, 生日",
+    rating: 4.9,
+    img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600",
+    hours: "週二至週日 10:00–19:00",
+    desc: "精緻法式甜點工作室，主打季節性食材，每款蛋糕皆手工製作。",
+    ig: "https://instagram.com/miele.patisserie",
+    custom: true,
+    price: "NT$680 起",
+    days: 3,
+    badge: "custom"
+  },
+  {
+    name: "好時光烘焙",
+    address: "台北市信義區忠孝東路五段236號",
+    phone: "02-2758-5678",
+    style: "日式, 生日, 多層",
+    rating: 4.7,
+    img: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600",
+    hours: "週一至週六 09:00–20:00",
+    desc: "溫暖日式風格烘焙坊，專注生日蛋糕與節慶蛋糕，可客製化文字與造型。",
+    ig: "https://instagram.com/goodtime.bakery",
+    custom: true,
+    price: "NT$580 起",
+    days: 5,
+    badge: ""
+  },
+  {
+    name: "Nuage Bakery",
+    address: "台北市中山區南京東路二段98號",
+    phone: "02-2521-9012",
+    style: "法式, 無麩質, 輕乳酪",
+    rating: 4.8,
+    img: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600",
+    hours: "每日 11:00–18:00",
+    desc: "以雲朵為靈感的法式烘焙，提供無麩質選項，適合有特殊飲食需求的客人。",
+    ig: "https://instagram.com/nuage.bakery",
+    custom: true,
+    price: "NT$750 起",
+    days: 2,
+    badge: "new"
+  },
+  {
+    name: "甜蜜工作坊",
+    address: "台北市松山區民生東路三段156號",
+    phone: "02-2718-3456",
+    style: "翻糖, 卡通, 客製",
+    rating: 4.6,
+    img: "https://images.unsplash.com/photo-1587241321921-91a834d6d191?w=600",
+    hours: "週二至週日 10:00–20:00",
+    desc: "台灣最受歡迎的翻糖蛋糕工作坊，可製作卡通人物、立體造型，IG打卡熱點。",
+    ig: "https://instagram.com/sweet.workshop.tw",
+    custom: true,
+    price: "NT$1,200 起",
+    days: 7,
+    badge: "custom"
+  },
+  {
+    name: "La Farine",
+    address: "台北市大安區仁愛路四段300號",
+    phone: "02-2700-7890",
+    style: "法式, 千層, 季節限定",
+    rating: 4.9,
+    img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600",
+    hours: "週三至週一 12:00–19:00",
+    desc: "法國主廚主理，以千層蛋糕聞名，每季推出限定口味，預購常售罄。",
+    ig: "https://instagram.com/lafarine.taipei",
+    custom: false,
+    price: "NT$880 起",
+    days: 0,
+    badge: ""
+  },
+  {
+    name: "初心蛋糕",
+    address: "新北市板橋區文化路一段188號",
+    phone: "02-2956-1234",
+    style: "韓式, 奶油抹面, 生日",
+    rating: 4.7,
+    img: "https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=600",
+    hours: "週二至週日 11:00–19:00",
+    desc: "韓式簡約風奶油蛋糕，乾淨美觀，非常適合作為生日禮物與婚禮甜點桌。",
+    ig: "https://instagram.com/firstheart.cake",
+    custom: true,
+    price: "NT$650 起",
+    days: 5,
+    badge: ""
+  },
+  {
+    name: "Flour & Co.",
+    address: "台北市內湖區內湖路一段737號",
+    phone: "02-2791-5678",
+    style: "美式, 磅蛋糕, 派對",
+    rating: 4.5,
+    img: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600",
+    hours: "週一至週五 09:00–18:00",
+    desc: "美式風格烘焙，主打大份量磅蛋糕與Naked Cake，適合公司派對與大型聚會。",
+    ig: "https://instagram.com/flourandco.taipei",
+    custom: true,
+    price: "NT$480 起",
+    days: 3,
+    badge: ""
+  },
+  {
+    name: "茶の香蛋糕",
+    address: "台北市中正區羅斯福路三段269號",
+    phone: "02-2363-9012",
+    style: "抹茶, 和菓子風, 日式",
+    rating: 4.8,
+    img: "https://images.unsplash.com/photo-1542010589005-d1eacc3918f2?w=600",
+    hours: "週二至週日 10:00–19:00",
+    desc: "以台灣高山茶與日本抹茶為主要素材，蛋糕帶有清雅茶香，送禮首選。",
+    ig: "https://instagram.com/chanoka.cake",
+    custom: true,
+    price: "NT$720 起",
+    days: 4,
+    badge: ""
+  },
+  {
+    name: "Rose & Sugar",
+    address: "台北市士林區中山北路六段2號",
+    phone: "02-2836-3456",
+    style: "浪漫, 鮮花, 婚禮",
+    rating: 4.9,
+    img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600",
+    hours: "週一至週六 10:00–20:00",
+    desc: "以真實食用花卉裝飾蛋糕，浪漫唯美風格，為婚禮、求婚、周年紀念日打造專屬甜點。",
+    ig: "https://instagram.com/roseandsugar.tw",
+    custom: true,
+    price: "NT$1,500 起",
+    days: 10,
+    badge: ""
+  },
+  {
+    name: "Mr. Cheesecake TW",
+    address: "台北市大安區忠孝東路四段181號",
+    phone: "02-2731-7890",
+    style: "乳酪蛋糕, 日式, 低甜度",
+    rating: 4.8,
+    img: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600",
+    hours: "每日 11:00–19:00（售完為止）",
+    desc: "台灣版日式低甜度乳酪蛋糕，口感綿密細緻，每日限量販售，常常中午前售罄。",
+    ig: "https://instagram.com/mrcheesecake.tw",
+    custom: false,
+    price: "NT$420 起",
+    days: 0,
+    badge: ""
+  }
+];
+
+const allTags = ["全部", "法式", "日式", "韓式", "訂製", "生日", "無麩質", "婚禮", "翻糖", "乳酪"];
+let activeTag = "全部";
+
+function buildFilters() {
+  const f = document.getElementById("filters");
+  f.innerHTML = allTags.map(t =>
+    `<button class="filter-btn${t === activeTag ? " active" : ""}" onclick="setTag('${t}')">${t}</button>`
+  ).join("");
+}
+
+function setTag(t) {
+  activeTag = t;
+  buildFilters();
+  renderCards();
+}
+
+function renderCards() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const filtered = shops.filter(s => {
+    const matchTag = activeTag === "全部" || s.style.includes(activeTag);
+    const matchQ = !q || s.name.toLowerCase().includes(q) || s.style.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q);
+    return matchTag && matchQ;
+  });
+  document.getElementById("results-info").textContent = `共找到 ${filtered.length} 家`;
+  document.getElementById("header-count").textContent = `${filtered.length} 家店`;
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty");
+  if (!filtered.length) { grid.innerHTML = ""; empty.style.display = "block"; return; }
+  empty.style.display = "none";
+  grid.innerHTML = filtered.map((s, i) => {
+    const badgeMap = { custom: "可訂製", featured: "主廚推薦", new: "新加入" };
+    const badge = s.badge ? `<div class="card-badge badge-${s.badge}">${badgeMap[s.badge]}</div>` : "";
+    return `<div class="card" onclick="openModal(${shops.indexOf(s)})">
+      <div class="card-img">
+        <img src="${s.img}" alt="${s.name}" loading="lazy">
+        ${badge}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${s.name}</div>
+        <div class="card-style">${s.style}</div>
+        <div class="card-desc">${s.desc}</div>
+        <div class="card-meta">
+          <span class="card-price">${s.price}</span>
+          <span class="card-hours">${s.hours.split("｜")[0].split(" ")[0]}</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn-ig" href="${s.ig}" target="_blank" onclick="event.stopPropagation()">&#9825; Instagram</a>
+        <div class="btn-tel" onclick="event.stopPropagation();alert('${s.phone}')"># 聯絡方式</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function openModal(i) {
+  const s = shops[i];
+  document.getElementById("modal-img").src = s.img;
+  document.getElementById("modal-img").alt = s.name;
+  document.getElementById("modal-name").textContent = s.name;
+  document.getElementById("modal-style").textContent = s.style;
+  document.getElementById("modal-desc").textContent = s.desc;
+  document.getElementById("modal-info").innerHTML = `
+    <div class="modal-row"><span class="modal-key">地址</span><span class="modal-val">${s.address}</span></div>
+    <div class="modal-row"><span class="modal-key">營業時間</span><span class="modal-val">${s.hours}</span></div>
+    <div class="modal-row"><span class="modal-key">聯絡方式</span><span class="modal-val">${s.phone}</span></div>
+    <div class="modal-row"><span class="modal-key">最低價格</span><span class="modal-val">${s.price}</span></div>
+    <div class="modal-row"><span class="modal-key">可訂製</span><span class="modal-val">${s.custom ? "是，建議提前 " + (s.days||3) + " 天預訂" : "否，現場購買"}</span></div>
+  `;
+  document.getElementById("modal-actions").innerHTML = `
+    <a class="btn-tel" href="${s.ig}" target="_blank" style="flex:1;text-decoration:none">&#9825; 前往 Instagram</a>
+  `;
+  document.getElementById("modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById("modal")) closeModalBtn();
+}
+function closeModalBtn() {
+  document.getElementById("modal").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+buildFilters();
+renderCards();
+</script>
+</body>
+</html>
